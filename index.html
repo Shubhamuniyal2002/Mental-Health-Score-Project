@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MindScore | Mental Health Score Prediction</title>
+  <meta name="description" content="MindScore: a machine learning project that predicts a mental health score from your digital habits and lifestyle." />
+  <!-- Favicon is inlined so no extra file is needed -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%236d4aff'/%3E%3Cstop offset='1' stop-color='%233b7bff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M12 36h10l5-14 8 24 6-18 3 8h8' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+  <!-- Google Identity Services (loaded async; script.js waits for it) -->
+  <script src="https://accounts.google.com/gsi/client" async defer id="gsiScript"></script>
+</head>
+<body>
+  <a class="skip-link" href="#predict">Skip to the form</a>
+
+  <!-- ================= Header ================= -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#top" aria-label="MindScore home">
+        <svg class="logo" viewBox="0 0 64 64" width="34" height="34" aria-hidden="true">
+          <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6d4aff"/><stop offset="1" stop-color="#3b7bff"/></linearGradient></defs>
+          <rect width="64" height="64" rx="16" fill="url(#lg)"/>
+          <path d="M12 36h10l5-14 8 24 6-18 3 8h8" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>MindScore</span>
+      </a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="#predict">Predict</a>
+        <a href="#leaderboard" class="nav-board"><i class="fa-solid fa-trophy" aria-hidden="true"></i> Leaderboard</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- ================= Hero + profile ================= -->
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="blob blob-a" aria-hidden="true"></div>
+      <div class="blob blob-b" aria-hidden="true"></div>
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="badge"><i class="fa-solid fa-microchip" aria-hidden="true"></i> Machine Learning Project | FastAPI + Python</span>
+          <h1 id="heroTitle">Your habits. Your MindScore.</h1>
+          <p class="lead">Tell us about your screen time, sleep, study routine, activity, and stress. A trained machine learning model returns a predicted mental health score in seconds.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary btn-lg" href="#predict">Calculate My MindScore <i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a>
+            <a class="btn btn-ghost btn-lg" href="#leaderboard"><i class="fa-solid fa-trophy" aria-hidden="true"></i> View Top 10</a>
+          </div>
+          <p class="fineprint"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> A learning project. It does not diagnose, assess, or treat any condition.</p>
+        </div>
+
+        <!-- Google-style profile card (filled in by script.js; nothing is hardcoded) -->
+        <aside class="profile-card" id="profileCard" aria-label="Your profile">
+          <div class="profile-row">
+            <div class="avatar avatar-lg" id="profileAvatar" aria-hidden="true"></div>
+            <div class="profile-text">
+              <strong class="profile-name" id="profileName">Guest</strong>
+              <span class="profile-email" id="profileEmail">Not signed in</span>
+            </div>
+          </div>
+          <div class="auth-area">
+            <div id="gsiButton" class="gsi-slot"></div>
+            <p class="auth-note" id="authNote" role="status" aria-live="polite" hidden></p>
+            <button type="button" class="btn btn-ghost btn-sm" id="btnSignOut" hidden><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Sign out</button>
+          </div>
+          <p class="profile-foot"><i class="fa-solid fa-lock" aria-hidden="true"></i> Your email and name are never sent to the prediction model.</p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ================= Form ================= -->
+    <section class="section" id="predict" aria-labelledby="predictTitle">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="predictTitle">Tell us about your day</h2>
+          <p>Everything is on this page. All fields are required, and sliders count only after you move them.</p>
+          <p class="api-status" id="apiStatus" role="status" aria-live="polite"><span class="pulse"></span><span id="apiStatusText">Checking the prediction API…</span></p>
+        </div>
+
+        <div class="alert alert-error" id="formAlert" role="alert" hidden></div>
+
+        <form id="predictForm" novalidate autocomplete="off">
+          <div class="form-grid">
+
+            <!-- Personal -->
+            <fieldset class="card group">
+              <legend><span class="g-icon"><i class="fa-solid fa-user" aria-hidden="true"></i></span> Personal details</legend>
+
+              <div class="field">
+                <label for="Name"><i class="fa-solid fa-signature" aria-hidden="true"></i> Name</label>
+                <input type="text" id="Name" name="Name" maxlength="60" placeholder="Your name (shown on the leaderboard)" autocomplete="off" aria-describedby="err-Name" />
+                <p class="error" id="err-Name" role="alert"></p>
+              </div>
+
+              <div class="field">
+                <label for="Age"><i class="fa-solid fa-cake-candles" aria-hidden="true"></i> Age</label>
+                <input type="number" id="Age" name="Age" inputmode="numeric" min="18" max="100" step="1" placeholder="18 to 100" aria-describedby="err-Age" />
+                <p class="error" id="err-Age" role="alert"></p>
+              </div>
+
+              <div class="field">
+                <span class="label" id="lbl-Gender"><i class="fa-solid fa-venus-mars" aria-hidden="true"></i> Gender</span>
+                <div class="pills" role="radiogroup" aria-labelledby="lbl-Gender">
+                  <label class="pill"><input type="radio" name="Gender" value="Male" /><span>Male</span></label>
+                  <label class="pill"><input type="radio" name="Gender" value="Female" /><span>Female</span></label>
+                </div>
+                <p class="error" id="err-Gender" role="alert"></p>
+              </div>
+
+              <div class="field">
+                <label for="Country"><i class="fa-solid fa-earth-asia" aria-hidden="true"></i> Country</label>
+                <select id="Country" name="Country" aria-describedby="err-Country">
+                  <option value="">Select your country</option>
+                  <option>India</option><option>USA</option><option>Canada</option><option>Australia</option><option>UK</option>
+                  <option>Germany</option><option>Mexico</option><option>Turkey</option><option>France</option><option>Spain</option>
+                  <option value="Other">Other</option>
+                </select>
+                <p class="error" id="err-Country" role="alert"></p>
+              </div>
+
+              <div class="field" id="countryOtherWrap" hidden>
+                <label for="CountryOther">Your country name</label>
+                <input type="text" id="CountryOther" maxlength="60" placeholder="e.g. Brazil" />
+              </div>
+
+              <div class="field">
+                <span class="label" id="lbl-Academic_Level"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> Academic level</span>
+                <div class="pills" role="radiogroup" aria-labelledby="lbl-Academic_Level">
+                  <label class="pill"><input type="radio" name="Academic_Level" value="High School" /><span>High School</span></label>
+                  <label class="pill"><input type="radio" name="Academic_Level" value="Undergraduate" /><span>Undergraduate</span></label>
+                  <label class="pill"><input type="radio" name="Academic_Level" value="Graduate" /><span>Graduate</span></label>
+                </div>
+                <p class="error" id="err-Academic_Level" role="alert"></p>
+              </div>
+            </fieldset>
+
+            <!-- Digital -->
+            <fieldset class="card group">
+              <legend><span class="g-icon"><i class="fa-solid fa-mobile-screen" aria-hidden="true"></i></span> Digital habits</legend>
+
+              <div class="field">
+                <label for="Most_Used_Platform"><i class="fa-solid fa-hashtag" aria-hidden="true"></i> Most used platform</label>
+                <select id="Most_Used_Platform" name="Most_Used_Platform" aria-describedby="err-Most_Used_Platform">
+                  <option value="">Select a platform</option>
+                  <option>Facebook</option><option>LinkedIn</option><option>Instagram</option><option>Snapchat</option>
+                  <option>Twitter</option><option>YouTube</option><option>TikTok</option><option>LINE</option>
+                  <option>KakaoTalk</option><option>VKontakte</option><option>WhatsApp</option><option>WeChat</option>
+                </select>
+                <p class="error" id="err-Most_Used_Platform" role="alert"></p>
+              </div>
+
+              <div class="field">
+                <span class="label" id="lbl-Purpose_Of_Use"><i class="fa-solid fa-bullseye" aria-hidden="true"></i> Main purpose of use</span>
+                <div class="pills" role="radiogroup" aria-labelledby="lbl-Purpose_Of_Use">
+                  <label class="pill"><input type="radio" name="Purpose_Of_Use" value="Networking" /><span>Networking</span></label>
+                  <label class="pill"><input type="radio" name="Purpose_Of_Use" value="Education" /><span>Education</span></label>
+                  <label class="pill"><input type="radio" name="Purpose_Of_Use" value="Entertainment" /><span>Entertainment</span></label>
+                  <label class="pill"><input type="radio" name="Purpose_Of_Use" value="News" /><span>News</span></label>
+                </div>
+                <p class="error" id="err-Purpose_Of_Use" role="alert"></p>
+              </div>
+
+              <div class="field">
+                <div class="slider-head">
+                  <label for="Avg_Daily_Usage_Hours"><i class="fa-regular fa-clock" aria-hidden="true"></i> Daily social media use</label>
+                  <output class="slider-out is-unset" id="out-Avg_Daily_Usage_Hours" for="Avg_Daily_Usage_Hours">Not set</output>
+                </div>
+                <input type="range" class="range" id="Avg_Daily_Usage_Hours" name="Avg_Daily_Usage_Hours" min="0" max="12" step="0.5" value="0" data-unit=" h" aria-describedby="err-Avg_Daily_Usage_Hours" />
+                <div class="range-scale"><span>0 h</span><span>12 h</span></div>
+                <p class="error" id="err-Avg_Daily_Usage_Hours" role="alert"></p>
+              </div>
+
+              <div class="field">
+                <div class="slider-head">
+                  <label for="Daily_Unlocks"><i class="fa-solid fa-unlock" aria-hidden="true"></i> Phone unlocks per day</label>
+                  <output class="slider-out is-unset" id="out-Daily_Unlocks" for="Daily_Unlocks">Not set</output>
+                </div>
+                <input type="range" class="range" id="Daily_Unlocks" name="Daily_Unlocks" min="0" max="200" step="1" value="0" data-unit="" aria-describedby="err-Daily_Unlocks" />
+                <div class="range-scale"><span>0</span><span>200</span></div>
+                <p class="error" id="err-Daily_Unlocks" role="alert"></p>
+              </div>
+            </fieldset>
+
+            <!-- Lifestyle -->
+            <fieldset class="card group span-2">
+              <legend><span class="g-icon"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i></span> Daily lifestyle</legend>
+
+              <div class="grid-3">
+                <div class="field">
+                  <label for="Study_Hours"><i class="fa-solid fa-book-open" aria-hidden="true"></i> Study hours</label>
+                  <input type="number" id="Study_Hours" name="Study_Hours" inputmode="decimal" min="0" max="10" step="0.5" placeholder="0 to 10" aria-describedby="err-Study_Hours" />
+                  <p class="error" id="err-Study_Hours" role="alert"></p>
+                </div>
+                <div class="field">
+                  <label for="Physical_Activity_Hours"><i class="fa-solid fa-person-running" aria-hidden="true"></i> Physical activity (h)</label>
+                  <input type="number" id="Physical_Activity_Hours" name="Physical_Activity_Hours" inputmode="decimal" min="0" max="3" step="0.25" placeholder="0 to 3" aria-describedby="err-Physical_Activity_Hours" />
+                  <p class="error" id="err-Physical_Activity_Hours" role="alert"></p>
+                </div>
+                <div class="field">
+                  <label for="Sleep_Hours_Per_Night"><i class="fa-solid fa-moon" aria-hidden="true"></i> Sleep per night (h)</label>
+                  <input type="number" id="Sleep_Hours_Per_Night" name="Sleep_Hours_Per_Night" inputmode="decimal" min="4" max="18" step="0.5" placeholder="4 to 18" aria-describedby="err-Sleep_Hours_Per_Night" />
+                  <p class="error" id="err-Sleep_Hours_Per_Night" role="alert"></p>
+                </div>
+              </div>
+
+              <div class="field">
+                <span class="label" id="lbl-Stress_Level"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Stress level</span>
+                <div class="pills" role="radiogroup" aria-labelledby="lbl-Stress_Level">
+                  <label class="pill"><input type="radio" name="Stress_Level" value="Low" /><span>Low</span></label>
+                  <label class="pill"><input type="radio" name="Stress_Level" value="Medium" /><span>Medium</span></label>
+                  <label class="pill"><input type="radio" name="Stress_Level" value="High" /><span>High</span></label>
+                  <label class="pill"><input type="radio" name="Stress_Level" value="Very High" /><span>Very High</span></label>
+                </div>
+                <p class="error" id="err-Stress_Level" role="alert"></p>
+              </div>
+            </fieldset>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-ghost" id="btnReset"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Reset</button>
+            <button type="submit" class="btn btn-primary btn-xl" id="btnSubmit">
+              <span class="btn-label">Calculate My MindScore</span>
+              <span class="spinner" aria-hidden="true"></span>
+            </button>
+          </div>
+          <p class="privacy-line"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Only the 12 answers below your name are sent to the prediction API (<code id="apiUrlShown">…</code>). Your name is used only for the leaderboard.</p>
+        </form>
+
+        <!-- ================= Result ================= -->
+        <div class="card result" id="result" hidden tabindex="-1" aria-labelledby="resultTitle">
+          <div class="gauge-wrap">
+            <svg class="gauge" viewBox="0 0 200 200" role="img" aria-label="Score gauge" id="gaugeSvg">
+              <defs>
+                <linearGradient id="gaugeGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#6d4aff" /><stop offset="1" stop-color="#3b7bff" />
+                </linearGradient>
+              </defs>
+              <circle cx="100" cy="100" r="84" class="g-track" />
+              <circle cx="100" cy="100" r="84" class="g-fill" id="gaugeFill" />
+            </svg>
+            <div class="gauge-center">
+              <span class="score-num" id="scoreNum">0</span>
+              <span class="score-cap">out of <span id="gaugeMax">10</span></span>
+            </div>
+          </div>
+          <div class="result-copy">
+            <h2 id="resultTitle">Your MindScore</h2>
+            <p>This is the raw output of the trained model for the answers you gave. What a higher or lower number means depends on how the training dataset defined its target, which isn't documented here, so no good or bad label is attached.</p>
+            <p class="save-note" id="saveNote" role="status"></p>
+            <div class="alert alert-info"><i class="fa-solid fa-shield-heart" aria-hidden="true"></i><span>Generated by a machine learning model for learning and demonstration. It is not a medical diagnosis or psychological assessment. If you are worried about your well-being, please talk to a qualified professional.</span></div>
+            <div class="result-actions">
+              <button type="button" class="btn btn-primary" id="btnTryAgain"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Try Again</button>
+              <a class="btn btn-ghost" href="#leaderboard" id="btnTop10"><i class="fa-solid fa-trophy" aria-hidden="true"></i> View Top 10</a>
+              <button type="button" class="btn btn-ghost" id="btnShare"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i> Share</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Leaderboard ================= -->
+    <section class="section board-section" id="leaderboard" aria-labelledby="boardTitle">
+      <div class="container lb-wrap">
+        <div class="lb-head">
+          <span class="lb-trophy" aria-hidden="true">🏆</span>
+          <div>
+            <h2 id="boardTitle">Top 10 Scores</h2>
+            <p>See how you rank among the best!</p>
+          </div>
+        </div>
+
+        <div class="lb-card">
+          <div class="lb-row lb-cols" aria-hidden="true"><span>Rank</span><span>Name</span><span>Score</span></div>
+          <ol class="board" id="boardList" aria-label="Top 10 leaderboard"></ol>
+          <div class="empty" id="boardEmpty" hidden>
+            <span class="empty-icon"><i class="fa-solid fa-trophy" aria-hidden="true"></i></span>
+            <h3>No scores yet</h3>
+            <p>Enter your name and calculate your MindScore to take the first spot.</p>
+            <a class="btn btn-primary" href="#predict">Calculate My MindScore</a>
+          </div>
+        </div>
+
+        <div class="lb-me" id="myRank" hidden></div>
+
+        <p class="lb-foot"><span></span>Keep going! You're doing great! 🚀<span></span></p>
+
+        <p class="lb-warn" id="boardWarn" hidden><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> The shared leaderboard could not be reached, so this shows scores saved on <strong>this browser only</strong>. Other visitors won't see them.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p><strong>MindScore</strong>: a machine learning portfolio project. Predictions are for learning and demonstration only, not medical advice.</p>
+    </div>
+  </footer>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
