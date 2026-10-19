@@ -36,7 +36,7 @@
 
     // Base URL of your FastAPI backend (no trailing slash).
     // 127.0.0.1 only works on your own computer; use the deployed URL when you publish.
-    API_BASE_URL: "http://127.0.0.1:8000",
+    API_BASE_URL: "https://mental-health-score-project-tar5.onrender.com",
 
     // Firebase web config (Firebase console > Project settings > Your apps > Web app).
     // These values are public by design; security comes from the Firestore rules.
