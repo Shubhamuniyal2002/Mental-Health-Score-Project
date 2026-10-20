@@ -28,8 +28,8 @@ class Studentdata(BaseModel):
     Purpose_Of_Use:           Literal['Networking', 'Education', 'Entertainment', 'News']
     Avg_Daily_Usage_Hours:    float = Field(...,ge=0,le=12)
     Daily_Unlocks:            int = Field(...,ge=0,le=200)
-    Study_Hours:              float = Field(...,ge=0,le=10)
-    Physical_Activity_Hours:  float = Field(...,ge=0,le=3)
+    Study_Hours:              float = Field(...,ge=0,le=20)
+    Physical_Activity_Hours:  float = Field(...,ge=0,le=10)
     Sleep_Hours_Per_Night:    float = Field(...,ge=4,le=18)
     Stress_Level:             Literal['Medium', 'Low', 'Very High', 'High']
     
