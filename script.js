@@ -68,8 +68,8 @@
     Age:                     { min: 18, max: 100, int: true,  label: "Age" },
     Avg_Daily_Usage_Hours:   { min: 0,  max: 12,  int: false, label: "Daily social media use", slider: true },
     Daily_Unlocks:           { min: 0,  max: 200, int: true,  label: "Phone unlocks per day",  slider: true },
-    Study_Hours:             { min: 0,  max: 10,  int: false, label: "Study hours" },
-    Physical_Activity_Hours: { min: 0,  max: 3,   int: false, label: "Physical activity" },
+    Study_Hours:             { min: 0,  max: 20,  int: false, label: "Study hours" },
+    Physical_Activity_Hours: { min: 0,  max: 10,  int: false, label: "Physical activity" },
     Sleep_Hours_Per_Night:   { min: 4,  max: 18,  int: false, label: "Sleep per night" },
   };
   const CHOICES = {
